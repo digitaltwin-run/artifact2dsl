@@ -28,6 +28,8 @@ def _claim_ref(document: dict[str, Any], item: dict[str, Any]) -> dict[str, Any]
 
 
 def _outcome(left: list[dict[str, Any]], right: list[dict[str, Any]], operator: str, tolerance: float) -> str:
+    if not left and not right:
+        return "UNEVALUABLE"
     if not left:
         return "MISSING_LEFT"
     if not right:
@@ -36,6 +38,9 @@ def _outcome(left: list[dict[str, Any]], right: list[dict[str, Any]], operator: 
         return "UNEVALUABLE"
     first, second = left[0].get("value"), right[0].get("value")
     if operator == "numeric":
+        left_unit, right_unit = left[0].get("unit"), right[0].get("unit")
+        if left_unit is not None and right_unit is not None and left_unit != right_unit:
+            return "UNEVALUABLE"
         if isinstance(first, bool) or isinstance(second, bool):
             return "UNEVALUABLE"
         try:
@@ -90,6 +95,20 @@ def _automatic(documents: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for left_index, right_index in itertools.combinations(range(len(documents)), 2):
         left_doc, right_doc = documents[left_index], documents[right_index]
         shared = sorted(set(left_doc["namespaces"]) & set(right_doc["namespaces"]))
+        if not shared:
+            results.append(
+                {
+                    "id": f"auto:{left_index}:{right_index}:no-shared-namespace",
+                    "namespace": "artifact.compatibility",
+                    "subject": f"{left_doc['source']['path']}::{right_doc['source']['path']}",
+                    "predicate": "shared_namespace",
+                    "operator": "exact",
+                    "tolerance": 0.0,
+                    "outcome": "UNEVALUABLE",
+                    "left": [],
+                    "right": [],
+                }
+            )
         for namespace in shared:
             left, right = _index(left_doc, namespace), _index(right_doc, namespace)
             for subject, predicate in sorted(set(left) | set(right)):

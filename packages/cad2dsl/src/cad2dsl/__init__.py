@@ -23,7 +23,7 @@ _STEP_PRODUCT = re.compile(r"PRODUCT\s*\(\s*'([^']*)'", re.IGNORECASE)
 _ASCII_VERTEX = re.compile(rb"\bvertex\s+([+-]?[\d.eE]+)\s+([+-]?[\d.eE]+)\s+([+-]?[\d.eE]+)", re.IGNORECASE)
 
 
-def _mask_scad(source: str) -> str:
+def _mask_scad(source: str) -> tuple[str, str]:
     """Mask comments and strings while preserving offsets and line numbers."""
     result = list(source)
     index = 0
@@ -72,16 +72,25 @@ def _mask_scad(source: str) -> str:
             if current != "\n":
                 result[index] = " "
         index += 1
-    return "".join(result)
+    return "".join(result), state
 
 
 def _scad(raw: bytes, path: str) -> dict[str, Any]:
     source = raw.decode("utf-8")
-    structural_source = _mask_scad(source)
+    structural_source, lexical_state = _mask_scad(source)
     entities: list[dict[str, Any]] = []
     claims: list[dict[str, Any]] = []
     findings: list[dict[str, Any]] = []
     variables: dict[str, list[tuple[float, int, str]]] = {}
+    if lexical_state in {"block-comment", "string"}:
+        findings.append(
+            finding(
+                "CAD-SCAD-LEXICAL-001",
+                "error",
+                f"OpenSCAD source ends inside an unterminated {lexical_state}.",
+                subject="scad:document",
+            )
+        )
     depth = 0
     for line_number, line in enumerate(structural_source.splitlines(), start=1):
         if depth == 0:

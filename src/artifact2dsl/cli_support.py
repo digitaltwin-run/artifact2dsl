@@ -14,7 +14,11 @@ from .model import ConversionError
 def emit(value: dict[str, Any], output: str | None, pretty: bool) -> None:
     text = (
         json.dumps(
-            value, ensure_ascii=False, indent=2 if pretty else None, separators=None if pretty else (",", ":")
+            value,
+            ensure_ascii=False,
+            indent=2 if pretty else None,
+            separators=None if pretty else (",", ":"),
+            allow_nan=False,
         )
         + "\n"
     )

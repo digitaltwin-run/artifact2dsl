@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -132,9 +133,30 @@ def _require_string(value: Any, field: str) -> str:
     return value
 
 
+def _validate_json_value(value: Any, path: str = "$") -> None:
+    if value is None or isinstance(value, (str, bool, int)):
+        return
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ConversionError(f"{path} contains a non-finite number")
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _validate_json_value(item, f"{path}[{index}]")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ConversionError(f"{path} contains a non-string object key")
+            _validate_json_value(item, f"{path}.{key}")
+        return
+    raise ConversionError(f"{path} contains a non-JSON value of type {type(value).__name__}")
+
+
 def validate_document(value: dict[str, Any]) -> None:
     if not isinstance(value, dict) or value.get("schema_id") != DOCUMENT_SCHEMA:
         raise ConversionError(f"expected {DOCUMENT_SCHEMA}")
+    _validate_json_value(value)
     converter = value.get("converter")
     source = value.get("source")
     if not isinstance(converter, dict) or not isinstance(source, dict):

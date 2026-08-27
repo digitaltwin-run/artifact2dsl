@@ -8,8 +8,9 @@ import cad2dsl
 import pcb2dsl
 import pytest
 import sch2dsl
+import svg2dsl
 
-from artifact2dsl import ConversionError, compare_documents
+from artifact2dsl import ConversionError, compare_documents, load_document
 from artifact2dsl.compare import load_rules
 
 from .test_converters import PCB, SCH
@@ -42,6 +43,41 @@ def test_exact_comparison_treats_different_units_as_conflict() -> None:
     result = compare_documents([left, right])
 
     assert result["summary"]["CONFLICT"] == 1
+
+
+def test_numeric_comparison_refuses_different_explicit_units() -> None:
+    left = cad2dsl._scad(b"W = 10;\n", "left.scad")
+    right = cad2dsl._scad(b"W = 10;\n", "right.scad")
+    left["claims"][0]["unit"] = "mm"
+    right["claims"][0]["unit"] = "mil"
+    rules = {
+        "schema_id": "artifact2dsl.rules/v1",
+        "rules": [
+            {
+                "id": "width",
+                "operator": "numeric",
+                "left": {"source": "left.scad"},
+                "right": {"source": "right.scad"},
+            }
+        ],
+    }
+
+    result = compare_documents([left, right], rules)
+
+    assert result["summary"]["UNEVALUABLE"] == 1
+
+
+def test_automatic_comparison_never_passes_unrelated_domains() -> None:
+    drawing = svg2dsl.convert_source(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"/>', "drawing.svg"
+    )
+    board = pcb2dsl.convert_source(PCB, "panel.kicad_pcb")
+
+    result = compare_documents([drawing, board])
+
+    assert result["status"] == "blocked"
+    assert result["summary"]["comparisons"] == 1
+    assert result["summary"]["UNEVALUABLE"] == 1
 
 
 def test_explicit_rule_must_select_at_most_one_document_per_side() -> None:
@@ -92,6 +128,13 @@ module panel() { cube([1, 1, 1]); }
     assert any(item["subject"] == "module:panel" for item in result["claims"])
 
 
+@pytest.mark.parametrize("source", [b"W=10; /* unfinished\n", b'W=10; label="unfinished\n'])
+def test_scad_reports_unterminated_lexical_constructs(source: bytes) -> None:
+    result = cad2dsl._scad(source, "broken.scad")
+
+    assert "CAD-SCAD-LEXICAL-001" in {item["code"] for item in result["findings"]}
+
+
 def test_cad_structural_readers_cover_ascii_stl_step_and_dxf() -> None:
     stl = cad2dsl._stl(
         b"solid p\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 2 0 0\nvertex 0 3 0\nendloop\nendfacet\nendsolid\n",
@@ -140,3 +183,13 @@ def test_converter_errors_block_otherwise_matching_claims() -> None:
     assert result["summary"]["MATCH"] == 1
     assert result["summary"]["source_errors"] == 2
     assert result["status"] == "blocked"
+
+
+def test_saved_dsl_rejects_nonfinite_json_numbers(tmp_path: Path) -> None:
+    document = cad2dsl._scad(b"W=10;\n", "panel.scad")
+    document["claims"][0]["value"] = float("nan")
+    path = tmp_path / "invalid.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+    with pytest.raises(ConversionError, match="non-finite"):
+        load_document(path)
