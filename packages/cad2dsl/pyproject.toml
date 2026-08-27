@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cad2dsl"
+version = "0.1.0"
+description = "OpenSCAD, STL, STEP and DXF to evidence-bound artifact2dsl observations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["artifact2dsl>=0.1.0,<0.2"]
+
+[project.scripts]
+cad2dsl = "cad2dsl.cli:main"
+scad2dsl = "cad2dsl.cli:main"
+
+[project.entry-points."artifact2dsl.converters"]
+".scad" = "cad2dsl:convert_path"
+".stl" = "cad2dsl:convert_path"
+".step" = "cad2dsl:convert_path"
+".stp" = "cad2dsl:convert_path"
+".dxf" = "cad2dsl:convert_path"
+
+[tool.setuptools.packages.find]
+where = ["src"]

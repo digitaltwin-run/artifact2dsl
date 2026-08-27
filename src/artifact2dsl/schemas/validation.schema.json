@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digitaltwin.run/schemas/artifact2dsl/validation/v1",
+  "title": "Deterministic cross-artifact validation result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "authority", "sources", "mode", "summary", "results", "findings", "status"],
+  "properties": {
+    "schema_id": {"const": "artifact2dsl.validation/v1"},
+    "authority": {"const": "observation_only_no_execution_grant"},
+    "sources": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/source"}},
+    "mode": {"enum": ["shared_namespaces", "explicit_rules"]},
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comparisons", "MATCH", "CONFLICT", "MISSING_LEFT", "MISSING_RIGHT", "UNEVALUABLE", "source_errors", "blocking"],
+      "properties": {
+        "comparisons": {"type": "integer", "minimum": 0},
+        "MATCH": {"type": "integer", "minimum": 0},
+        "CONFLICT": {"type": "integer", "minimum": 0},
+        "MISSING_LEFT": {"type": "integer", "minimum": 0},
+        "MISSING_RIGHT": {"type": "integer", "minimum": 0},
+        "UNEVALUABLE": {"type": "integer", "minimum": 0},
+        "source_errors": {"type": "integer", "minimum": 0},
+        "blocking": {"type": "integer", "minimum": 0}
+      }
+    },
+    "results": {"type": "array", "items": {"$ref": "#/$defs/result"}},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["info", "warning", "error", "critical"]},
+          "message": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "status": {"enum": ["passed", "blocked"]}
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pointer": {"type": "string"},
+        "line": {"type": "integer", "minimum": 1},
+        "detail": {"type": "string"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "media_type", "sha256", "size"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "media_type": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "claimRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "claim_id", "namespace", "subject", "predicate", "value", "evidence"],
+      "properties": {
+        "source": {"$ref": "#/$defs/source"},
+        "claim_id": {"type": "string", "minLength": 1},
+        "namespace": {"type": "string", "minLength": 1},
+        "subject": {"type": "string", "minLength": 1},
+        "predicate": {"type": "string", "minLength": 1},
+        "value": {},
+        "unit": {"type": "string", "minLength": 1},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "namespace", "subject", "predicate", "operator", "tolerance", "outcome", "left", "right"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "namespace": {"type": "string", "minLength": 1},
+        "subject": {"type": "string", "minLength": 1},
+        "predicate": {"type": "string", "minLength": 1},
+        "operator": {"enum": ["exact", "numeric"]},
+        "tolerance": {"type": "number", "minimum": 0},
+        "outcome": {"enum": ["MATCH", "CONFLICT", "MISSING_LEFT", "MISSING_RIGHT", "UNEVALUABLE"]},
+        "left": {"type": "array", "items": {"$ref": "#/$defs/claimRef"}},
+        "right": {"type": "array", "items": {"$ref": "#/$defs/claimRef"}}
+      }
+    }
+  }
+}

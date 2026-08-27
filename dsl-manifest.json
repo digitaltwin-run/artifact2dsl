@@ -1,0 +1,127 @@
+{
+  "$schema": "https://wellmanifest.dev/schemas/dsl-manifest/v1",
+  "schema": "wellmanifest.dsl/manifest/v1",
+  "id": "digitaltwin-run.artifact2dsl.observation",
+  "name": "Artifact observation and cross-artifact validation DSL",
+  "version": "0.1.0",
+  "status": "experimental",
+  "purpose": "Convert native engineering artifacts into evidence-bound observations and compare declared facts without granting mutation authority",
+  "domain": "engineering-artifact-validation",
+  "owners": [
+    {
+      "kind": "repository",
+      "id": "github:digitaltwin-run/artifact2dsl",
+      "responsibilities": ["semantics", "validation", "compatibility", "runtime"]
+    }
+  ],
+  "source": {
+    "repository": "https://github.com/digitaltwin-run/artifact2dsl",
+    "path": "src/artifact2dsl/schemas/document.schema.json",
+    "declaredVersion": "0.1.0",
+    "canonical": "json-ast",
+    "mediaType": "application/schema+json",
+    "selectors": []
+  },
+  "ownedPaths": [
+    "dsl-manifest.json",
+    "README.md",
+    "pyproject.toml",
+    "src/artifact2dsl/**",
+    "packages/sch2dsl/**",
+    "packages/pcb2dsl/**",
+    "packages/svg2dsl/**",
+    "packages/cad2dsl/**",
+    "scripts/verify_conformance.py",
+    "examples/**",
+    "docs/**",
+    "tests/**",
+    ".github/**"
+  ],
+  "artifacts": [
+    {"path": "src/artifact2dsl/schemas/document.schema.json", "role": "normative-source", "digest": "sha256:8833982097c1e6c80b058f90fe9c050375748abf11e65fa3efb5d4d15e295823"},
+    {"path": "src/artifact2dsl/schemas/rules.schema.json", "role": "schema", "digest": "sha256:ea418d864cf17bbeaa810b1c6aa6c093288f40e5cd61984e1104b2dcfaa05036"},
+    {"path": "src/artifact2dsl/schemas/validation.schema.json", "role": "schema", "digest": "sha256:82efc80e2621f56b55a1a66f11fb1c03f3023cdfc60562384efeb7604aa8fcc5"},
+    {"path": "src/artifact2dsl/model.py", "role": "parser-contract", "digest": "sha256:cb7582b0fa39dd8d9b4ffd1431ee0cd0aa5fda5ddbf0a3a2a5b43ee17709ebd6"},
+    {"path": "src/artifact2dsl/compare.py", "role": "parser-contract", "digest": "sha256:0f7e48375995f07e8e2640cf80d309e238be2f4fa290e7ebceb3174c5c091a8f"},
+    {"path": "src/artifact2dsl/registry.py", "role": "parser-contract", "digest": "sha256:eb51dcdff9a021666d6438be5020b260aaf1801e455cd1f58ff430bbc9fa0114"},
+    {"path": "packages/sch2dsl/src/sch2dsl/__init__.py", "role": "parser-contract", "digest": "sha256:d96248ea349c9dde6209a8d025de0ea0b848e00472dd406e114de00baba60dfc"},
+    {"path": "packages/pcb2dsl/src/pcb2dsl/__init__.py", "role": "parser-contract", "digest": "sha256:a7575e89697108bf7fd5e9f6f35753eac72ff3dddea0f53ba6540d088aad1cb8"},
+    {"path": "packages/svg2dsl/src/svg2dsl/__init__.py", "role": "parser-contract", "digest": "sha256:0507b05e6ed7170a555a4d62205ddf2ab867c1dfd81a0591701afe15882b7f1d"},
+    {"path": "packages/cad2dsl/src/cad2dsl/__init__.py", "role": "parser-contract", "digest": "sha256:ad8ea84c92f3891a36a0d4f62ed781ed4f79e0de6552c7cd1186ce6dae5dc680"},
+    {"path": "scripts/verify_conformance.py", "role": "parser-contract", "digest": "sha256:489557311ff11597e3156a30b68579b04c180efa55c809ff7c3467d6b8079859"},
+    {"path": "examples/panel-dimensions.rules.json", "role": "example", "digest": "sha256:c362cf56bbb6093665e4631786e58bc01c7e1228ce56cefe7c547b61391a132b"},
+    {"path": "README.md", "role": "documentation", "digest": "sha256:b3f4784af4fafdbbe5f21138e26e031062ce8e1e6820c0db4c9c3485d693df40"},
+    {"path": "docs/CONVERT.md", "role": "documentation", "digest": "sha256:0a78c14b50c3c992d61e60de8d98e03b46f85a44a06623d567a9b40affab9e94"},
+    {"path": "docs/VALIDATE.md", "role": "documentation", "digest": "sha256:b9bd5a33d8f85949ee483d57ea6a32d415afd1f3178f2696776cda4c98f0d2da"},
+    {"path": "docs/ERROR/ARTIFACT-DRIFT-001.md", "role": "documentation", "digest": "sha256:43dd4f15a5f473954e38a7db725247f3ac6d877a5a524ca9f489b7107b6cd4a4"},
+    {"path": "docs/ERROR/ARTIFACT-GAP-001.md", "role": "documentation", "digest": "sha256:57bf24f2967a4d64ffcfb3f2cd189df6e1d6b6b64c874f3fe64c41001d7cce09"}
+  ],
+  "namespaces": [
+    {"prefix": "artifact2dsl", "uri": "https://github.com/digitaltwin-run/artifact2dsl/"},
+    {"prefix": "wellmanifest", "uri": "https://github.com/wellmanifest/"}
+  ],
+  "projections": [
+    {"name": "compact JSON", "mediaType": "application/json", "direction": "from-canonical", "lossless": true},
+    {"name": "focused converter CLIs", "mediaType": "application/json", "direction": "to-canonical", "lossless": false}
+  ],
+  "lifecycle": {
+    "compatibility": "semver", "stability": "experimental", "breaking": "major", "additive": "minor", "fix": "patch"
+  },
+  "semantics": {
+    "effectModel": "descriptive", "unknownPolicy": "preserve", "authoritySchema": null
+  },
+  "llm": {
+    "mode": "none", "requestSchemas": [], "responseSchemas": [], "naturalLanguage": "forbidden",
+    "sourceSchema": null, "decisionProtocol": "none", "modelAuthority": "none", "strict": true
+  },
+  "documentation": {
+    "vocabularyKind": "commands",
+    "commandRoot": "docs", "errorRoot": "docs/ERROR", "criticalRoot": "docs/CRITICAL",
+    "commands": ["CONVERT", "VALIDATE"],
+    "errorCodes": ["ARTIFACT-DRIFT-001", "ARTIFACT-GAP-001"], "criticalCodes": []
+  },
+  "findingPolicy": {
+    "schema": "wellmanifest.dsl/findings/v1",
+    "requiredProducers": ["digitaltwin-run.artifact2dsl.check"],
+    "securityProducers": ["digitaltwin-run.artifact2dsl.check"],
+    "blockingSeverities": ["error", "critical"],
+    "requireEvaluable": true,
+    "blockUnresolvedSecurity": true
+  },
+  "publicationPolicy": {
+    "declaredTier": "basic", "deterministic": true, "independentReview": false,
+    "externalAuthority": false, "runtimeIsolation": false
+  },
+  "conformance": {
+    "levels": ["manifest", "contract", "runtime"],
+    "commands": ["make check"],
+    "validExamples": ["examples/panel-dimensions.rules.json"],
+    "invalidExamples": []
+  },
+  "mappings": [
+    {
+      "standard": "wellmanifest.dsl", "version": "0.1.0", "relation": "implements",
+      "uri": "https://github.com/wellmanifest/dsl/tree/b7d0595c95e5abbb48ebfdbdae0bc6d43c6f82f4"
+    }
+  ],
+  "standardsLock": {
+    "schema": "wellmanifest.standards-lock/v1",
+    "entries": [
+      {
+        "standard": "wellmanifest.dsl", "version": "0.1.0",
+        "repository": "https://github.com/wellmanifest/dsl",
+        "revision": "b7d0595c95e5abbb48ebfdbdae0bc6d43c6f82f4",
+        "contracts": [
+          {
+            "ref": "https://wellmanifest.dev/schemas/dsl-manifest/v1",
+            "digest": "sha256:34d356b76bbd483372df84bb986e15bb84e9c1f8b11b7dc9e3a6c7276c85ed13"
+          },
+          {
+            "ref": "https://wellmanifest.dev/spec/DSL_STANDARD.md",
+            "digest": "sha256:2dfb09b5689289c3ad096057ca1dc2f19512639e3662188dd6c5ee25e4e8c53b"
+          }
+        ]
+      }
+    ]
+  }
+}

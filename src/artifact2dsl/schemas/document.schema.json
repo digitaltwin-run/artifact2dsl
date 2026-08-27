@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digitaltwin.run/schemas/artifact2dsl/document/v1",
+  "title": "Evidence-bound artifact observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "converter", "source", "namespaces", "entities", "claims", "findings", "metadata", "authority"],
+  "properties": {
+    "schema_id": {"const": "artifact2dsl.document/v1"},
+    "converter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {"name": {"type": "string", "minLength": 1}, "version": {"type": "string", "minLength": 1}}
+    },
+    "source": {"$ref": "#/$defs/source"},
+    "namespaces": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "entities": {"type": "array", "items": {"$ref": "#/$defs/entity"}},
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "metadata": {"type": "object"},
+    "authority": {"const": "observation_only_no_execution_grant"}
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "pointer": {"type": "string"}, "line": {"type": "integer", "minimum": 1}, "detail": {"type": "string"}
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "media_type", "sha256", "size"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "media_type": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "entity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "name", "attributes", "evidence"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1}, "kind": {"type": "string", "minLength": 1},
+        "name": {"type": "string"}, "attributes": {"type": "object"}, "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    },
+    "claim": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "namespace", "subject", "predicate", "value", "evidence"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1},
+        "subject": {"type": "string", "minLength": 1}, "predicate": {"type": "string", "minLength": 1},
+        "value": {}, "unit": {"type": "string", "minLength": 1}, "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "severity", "message", "subject", "evidence"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1}, "severity": {"enum": ["info", "warning", "error", "critical"]},
+        "message": {"type": "string", "minLength": 1}, "subject": {"type": "string"}, "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    }
+  }
+}

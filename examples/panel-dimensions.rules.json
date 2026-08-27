@@ -1,0 +1,45 @@
+{
+  "schema_id": "artifact2dsl.rules/v1",
+  "rules": [
+    {
+      "id": "panel-width-scad-pcb",
+      "namespace": "panel.geometry",
+      "subject": "panel",
+      "predicate": "width",
+      "operator": "numeric",
+      "tolerance": 0.01,
+      "left": {
+        "source": "*.scad",
+        "namespace": "cad.parameter",
+        "subject": "parameter:W",
+        "predicate": "value"
+      },
+      "right": {
+        "source": "*.kicad_pcb",
+        "namespace": "board.geometry",
+        "subject": "board",
+        "predicate": "width"
+      }
+    },
+    {
+      "id": "panel-height-scad-pcb",
+      "namespace": "panel.geometry",
+      "subject": "panel",
+      "predicate": "height",
+      "operator": "numeric",
+      "tolerance": 0.01,
+      "left": {
+        "source": "*.scad",
+        "namespace": "cad.parameter",
+        "subject": "parameter:H",
+        "predicate": "value"
+      },
+      "right": {
+        "source": "*.kicad_pcb",
+        "namespace": "board.geometry",
+        "subject": "board",
+        "predicate": "height"
+      }
+    }
+  ]
+}

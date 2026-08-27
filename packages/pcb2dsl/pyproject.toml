@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pcb2dsl"
+version = "0.1.0"
+description = "KiCad PCB to evidence-bound artifact2dsl observations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+  "artifact2dsl>=0.1.0,<0.2",
+  "twin-kicad @ https://github.com/digitaltwin-run/twin-kicad/archive/f48728c39d9ee15160580c4ea0f184aa33ee11dc.zip",
+]
+
+[project.scripts]
+pcb2dsl = "pcb2dsl.cli:main"
+
+[project.entry-points."artifact2dsl.converters"]
+".kicad_pcb" = "pcb2dsl:convert_path"
+
+[tool.setuptools.packages.find]
+where = ["src"]
