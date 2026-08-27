@@ -48,7 +48,24 @@ def main() -> int:
             problems.append(f"manifest artifact is missing: {artifact.get('path')}")
         elif artifact.get("digest") != digest(target):
             problems.append(f"manifest digest drift: {artifact.get('path')}")
+    lock_entries = manifest.get("standardsLock", {}).get("entries", [])
+    dsl_lock = next(
+        (item for item in lock_entries if item.get("standard") == "wellmanifest.dsl"),
+        None,
+    )
+    locked_contracts = {item.get("ref"): item.get("digest") for item in (dsl_lock or {}).get("contracts", [])}
     standard_schema = STANDARD / "schemas/dsl-manifest.schema.json"
+    standard_spec = STANDARD / "spec/DSL_STANDARD.md"
+    standard_files = {
+        "https://wellmanifest.dev/schemas/dsl-manifest/v1": standard_schema,
+        "https://wellmanifest.dev/spec/DSL_STANDARD.md": standard_spec,
+    }
+    for reference, target in standard_files.items():
+        expected = locked_contracts.get(reference)
+        if not expected:
+            problems.append(f"standardsLock is missing {reference}")
+        elif target.is_file() and digest(target) != expected:
+            problems.append(f"standardsLock digest mismatch: {reference}")
     if standard_schema.is_file():
         for error in Draft202012Validator(load(standard_schema)).iter_errors(manifest):
             where = "/".join(str(item) for item in error.absolute_path) or "(root)"

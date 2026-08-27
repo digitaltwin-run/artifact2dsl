@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: wellmanifest/dsl
-          ref: b7d0595c95e5abbb48ebfdbdae0bc6d43c6f82f4
+          ref: 8b5ef587a0eda2d16b6f979b991f66c7b3590fbe
           path: wellmanifest-dsl
 
       - name: Set up Python
