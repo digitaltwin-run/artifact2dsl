@@ -12,24 +12,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out artifact2dsl
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Check out pinned parser implementation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: digitaltwin-run/twin-kicad
           ref: f48728c39d9ee15160580c4ea0f184aa33ee11dc
           path: twin-kicad
 
       - name: Check out pinned DSL standard
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: wellmanifest/dsl
           ref: 8b5ef587a0eda2d16b6f979b991f66c7b3590fbe
           path: wellmanifest-dsl
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
