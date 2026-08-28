@@ -20,6 +20,19 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ARTIFACTS = Path("/home/tom/github/maskservice/viewer/artifacts")
 
 
+def parity_problems(parity: dict[str, object]) -> list[str]:
+    """Turn every non-match outcome into a blocking panel9 diagnostic."""
+    summary = parity["summary"]
+    assert isinstance(summary, dict)
+    problems: list[str] = []
+    for outcome in ("CONFLICT", "MISSING_LEFT", "MISSING_RIGHT", "UNEVALUABLE"):
+        if summary[outcome]:
+            problems.append(f"SCH-PCB {outcome}={summary[outcome]}")
+    if summary["source_errors"]:
+        problems.append(f"SCH-PCB source_errors={summary['source_errors']}")
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifacts-root", type=Path, default=DEFAULT_ARTIFACTS)
@@ -47,12 +60,7 @@ def main() -> int:
     )
     svg_documents = [svg2dsl.convert_path(path) for path in sorted((artifacts / "drawings").glob("*.svg"))]
 
-    problems: list[str] = []
-    for outcome in ("MISSING_LEFT", "MISSING_RIGHT", "UNEVALUABLE"):
-        if parity["summary"][outcome]:
-            problems.append(f"SCH-PCB {outcome}={parity['summary'][outcome]}")
-    if parity["summary"]["source_errors"]:
-        problems.append(f"SCH-PCB source_errors={parity['summary']['source_errors']}")
+    problems = parity_problems(parity)
     if geometry["status"] != "passed":
         problems.append(f"CAD-PCB geometry={geometry['summary']}")
     pin_results = [item for item in parity["results"] if item["namespace"] == "eda.pin-net"]
