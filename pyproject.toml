@@ -13,7 +13,7 @@ authors = [{name = "digitaltwin-run"}]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["jsonschema>=4,<5", "pytest>=8,<10", "ruff>=0.12,<1"]
+dev = ["jsonschema>=4.26.0,<5", "pytest>=8.4.2,<10", "ruff>=0.12.12,<1"]
 
 [project.scripts]
 artifact2dsl = "artifact2dsl.cli:main"
